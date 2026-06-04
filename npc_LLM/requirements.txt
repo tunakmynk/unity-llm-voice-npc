@@ -1,0 +1,19 @@
+# Core dependencies
+google-generativeai>=0.3.0
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.0.0
+
+# Voice dependencies
+elevenlabs>=0.2.27
+speechrecognition>=3.10.0  # For speech-to-text (Google Speech Recognition)
+pyaudio>=0.2.11
+keyboard>=0.13.5  # For push-to-talk feature
+pygame>=2.5.0  # For audio playback
+requests>=2.31.0  # For ElevenLabs REST API fallback
+
+# Note: On Windows, you may need to install PyAudio separately:
+# pip install pipwin
+# pipwin install pyaudio
+# Or download the wheel from: https://www.lfd.uci.edu/~gohlke/pythonlibs/#pyaudio
+
