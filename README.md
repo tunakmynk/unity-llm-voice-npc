@@ -283,3 +283,13 @@ Bu kararlar, LLM destekli Hidden Judge sistemi tarafından belirlenir.
 # 📄 Lisans
 
 Bu proje eğitim, araştırma ve prototipleme amaçlı geliştirilmiştir.
+
+# Oynanış Videosu:
+
+
+
+
+
+
+
+
