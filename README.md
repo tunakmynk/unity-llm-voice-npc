@@ -21,7 +21,7 @@ Sistemin çalışması için Python 3.8 veya üzeri bir sürümün yüklü olmas
 
 ```bash
 cd npc_LLM
-pip install google-generativeai fastapi uvicorn pydantic elevenlabs SpeechRecognition pyaudio keyboard
+pip install google-generativeai fastapi uvicorn pydantic elevenlabs SpeechRecognition pyaudio keyboard```
 
 2. Çevre Değişkenleri (API Key)
 Yapay zeka modelinin yanıt üretebilmesi için Google Gemini API anahtarı gerekmektedir. Terminalinizde şu komutla anahtarınızı tanımlayın:
@@ -39,3 +39,11 @@ Bağımlılıklar kurulduktan ve API anahtarı ayarlandıktan sonra, FastAPI sun
 uvicorn npc_server:app --reload
 
 Sunucu başarıyla başladığında http://127.0.0.1:8000 adresinde dinlemeye geçecektir. Ardından Unity projesini açıp prototipi deneyimlemeye başlayabilirsiniz.
+
+## 🎮 Oynanış ve Kontroller (Unity İstemcisi)
+
+Python sunucusu çalışır durumdayken Unity projesini (`Dwarf Grom Game NEW`) başlatın.
+
+* **Yazılı İletişim:** Klavyeden **`X`** tuşuna basarak metin kutusunu açabilir ve Grom ile yazışabilirsiniz.
+* **Sesli İletişim:** Klavyeden **`V`** tuşuna basılı tutarak mikrofonunuz aracılığıyla Grom ile konuşabilirsiniz.
+* **Mekanik:** Grom'u argümanlarınızla ikna etmeyi başarırsanız, NPC sizi haritada takip etmeye başlar. İkna edemezseniz takibi bırakır.
