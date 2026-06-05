@@ -302,3 +302,7 @@ Unity Hub üzerinden projeyi açın ve sahneyi çalıştırın.
 ## 📄 Lisans
 
 Bu proje eğitim, araştırma ve prototipleme amaçlı geliştirilmiştir.
+
+## Oynanış Videosu
+[![Videoyu İzlemek İçin Tıklayın](https://www.youtube.com/watch?v=wW9WMaQVq_k)
+
