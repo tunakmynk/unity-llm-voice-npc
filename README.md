@@ -1,309 +1,312 @@
-# 🎮⚔️ Dwarf Grom — LLM Destekli Akıllı NPC Oyun Prototipi
+**English** | [Türkçe](README.tr.md)
 
-> Unity oyun motoru içerisinde **Büyük Dil Modeli (LLM)**, **Ses Tanıma (STT)** ve **Ses Sentezi (TTS)** teknolojilerini bir araya getiren, yapay zeka destekli akıllı NPC etkileşim sistemi.
+# 🎮⚔️ Dwarf Grom — LLM-Powered Smart NPC Game Prototype
 
-Oyuncu, oyundaki cüce demirci karakter **Grom** ile hem **yazılı** hem de **sesli** olarak doğal dilde iletişim kurabilir. Grom'un davranışları, özel olarak tasarlanmış bir **Hidden Judge (Gizli Hakem)** mekanizması aracılığıyla oyuncunun sunduğu argümanların tutarlılığına ve ikna ediciliğine göre dinamik olarak değişir.
+> An AI-powered smart NPC interaction system that combines a **Large Language Model (LLM)**, **Speech-to-Text (STT)** and **Text-to-Speech (TTS)** inside the Unity game engine.
+
+The player can talk to **Grom**, the in-game dwarf blacksmith, in natural language, both by **typing** and by **voice**. Grom's behavior changes dynamically based on how consistent and persuasive the player's arguments are, judged by a purpose-built **Hidden Judge** mechanism.
+
+> **Note:** The NPC is designed to speak Turkish. Speech recognition, the character's dialogue and voice synthesis all run in Turkish.
 
 ---
 
-## 📌 Öne Çıkan Özellikler
+## 📌 Key Features
 
-| Özellik | Açıklama |
+| Feature | Description |
 |---|---|
-| 🧠 **LLM Tabanlı Diyalog** | Google Gemini 2.5 Flash API ile doğal dilde sohbet |
-| 🎙️ **Sesli İletişim** | Mikrofon ile konuşma → STT → LLM → TTS → NPC seslendirme |
-| ⌨️ **Yazılı İletişim** | Sohbet paneli üzerinden metin tabanlı diyalog |
-| 🤖 **Hidden Judge Sistemi** | NPC'nin ikna edilip edilemeyeceğini değerlendiren gizli hakem mekanizması |
-| 🏃 **Dinamik NPC Davranışı** | İkna durumuna göre NPC'nin oyuncuyu takip etmesi veya reddetmesi |
-| 🎭 **Karakter Kişiliği** | Prompt Engineering ile tasarlanmış tutarlı karakter profili |
-| 🔊 **ElevenLabs TTS** | Çok dilli ses sentezi ile doğal NPC seslendirme |
-| 🔁 **Gerçek Zamanlı İletişim** | Unity ↔ Python arasında REST API üzerinden JSON haberleşme |
+| 🧠 **LLM-Based Dialogue** | Natural-language conversation via the Google Gemini 2.5 Flash API |
+| 🎙️ **Voice Interaction** | Speak into the mic → STT → LLM → TTS → NPC voice |
+| ⌨️ **Text Interaction** | Text-based dialogue through a chat panel |
+| 🤖 **Hidden Judge System** | A hidden judge that decides whether the NPC can be convinced |
+| 🏃 **Dynamic NPC Behavior** | The NPC follows or refuses the player depending on whether it was convinced |
+| 🎭 **Character Personality** | A consistent character profile designed with prompt engineering |
+| 🔊 **ElevenLabs TTS** | Natural NPC voice with multilingual speech synthesis |
+| 🔁 **Real-Time Communication** | JSON messaging between Unity and Python over a REST API |
 
 ---
 
-## 🏗️ Sistem Mimarisi
+## 🏗️ System Architecture
 
-Proje, birbirine REST API ile bağlanan iki ana katmandan oluşur:
+The project consists of two main layers connected by a REST API:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    UNITY İSTEMCİSİ (C#)                     │
+│                     UNITY CLIENT (C#)                       │
 │                                                             │
-│  ┌──────────┐  ┌──────────┐  ┌───────────┐  ┌───────────┐  │
-│  │ ChatUI   │  │ NPC      │  │ Player    │  │ Camera    │  │
-│  │ (Arayüz) │  │Interaction│  │ Movement  │  │ Follow    │  │
-│  └────┬─────┘  └─────┬────┘  └───────────┘  └───────────┘  │
-│       │              │                                       │
-│       └──────┬───────┘                                       │
-│              ▼                                               │
+│  ┌──────────┐  ┌───────────┐  ┌───────────┐  ┌───────────┐  │
+│  │ ChatUI   │  │ NPC       │  │ Player    │  │ Camera    │  │
+│  │ (UI)     │  │Interaction│  │ Movement  │  │ Follow    │  │
+│  └────┬─────┘  └─────┬─────┘  └───────────┘  └───────────┘  │
+│       │              │                                      │
+│       └──────┬───────┘                                      │
+│              ▼                                              │
 │  ┌───────────────────┐       ┌──────────────┐               │
-│  │   CallTheAPI      │       │ SimpleFollow  │               │
-│  │  (HTTP İstemci)   │──────▶│ (NPC Takip)   │               │
+│  │   CallTheAPI      │       │ SimpleFollow │               │
+│  │  (HTTP Client)    │──────▶│ (NPC Follow) │               │
 │  └─────────┬─────────┘       └──────────────┘               │
-│            │                                                 │
-└────────────┼─────────────────────────────────────────────────┘
+│            │                                                │
+└────────────┼────────────────────────────────────────────────┘
              │  HTTP POST (JSON / Base64 Audio)
              ▼
 ┌─────────────────────────────────────────────────────────────┐
-│                  PYTHON BACKEND (FastAPI)                     │
-│                                                              │
+│                  PYTHON BACKEND (FastAPI)                   │
+│                                                             │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │
 │  │ npc_server.py│  │ npc_brain.py │  │  voice_utils.py  │   │
-│  │  (API Sunucu)│  │ (LLM Mantık) │  │  (STT / TTS)     │   │
+│  │ (API Server) │  │ (LLM Logic)  │  │  (STT / TTS)     │   │
 │  └──────┬───────┘  └──────┬───────┘  └────────┬─────────┘   │
-│         │                 │                    │              │
-│         │         ┌───────▼───────┐   ┌───────▼──────────┐  │
+│         │                 │                    │            │
+│         │         ┌───────▼───────┐   ┌────────▼─────────┐  │
 │         │         │  Gemini API   │   │  ElevenLabs API  │  │
 │         │         │  (2.5 Flash)  │   │  (Multilingual)  │  │
 │         │         └───────────────┘   └──────────────────┘  │
-│         │                                      │             │
-│         │         ┌────────────────────────────┘             │
-│         │         │  Google Speech Recognition               │
-│         │         └──────────────────────────────            │
-└─────────┼────────────────────────────────────────────────────┘
+│         │                                      │            │
+│         │         ┌────────────────────────────┘            │
+│         │         │  Google Speech Recognition              │
+│         │         └─────────────────────────────            │
+└─────────┼───────────────────────────────────────────────────┘
           │
           ▼  JSON Response: { reply, isConvinced, audio(base64) }
 ```
 
 ---
 
-## 📂 Proje Yapısı
+## 📂 Project Structure
 
 ```
 Dwarf Grom Game NEW/
 │
 ├── Assets/
-│   ├── C# SCRİPTS/              # Unity tarafı script'leri
-│   │   ├── CallTheAPI.cs         # Python backend ile HTTP haberleşme (Singleton)
-│   │   ├── ChatUI.cs             # Sohbet arayüzü ve mikrofon kaydı yönetimi
-│   │   ├── NPCInteraction.cs     # Oyuncu-NPC mesafe algılama ve etkileşim tetikleme
-│   │   ├── SimpleFollow.cs       # LLM kararına göre NPC takip davranışı
-│   │   ├── PlayerMovement.cs     # 3. şahıs karakter hareketi (CharacterController)
-│   │   ├── CameraFollow.cs       # Mouse ile 3. şahıs kamera kontrolü
-│   │   └── AudioUtils.cs         # AudioClip → WAV byte dönüşümü
+│   ├── C# SCRİPTS/              # Unity-side scripts
+│   │   ├── CallTheAPI.cs         # HTTP communication with the Python backend (Singleton)
+│   │   ├── ChatUI.cs             # Chat interface and microphone recording
+│   │   ├── NPCInteraction.cs     # Player–NPC distance detection and interaction trigger
+│   │   ├── SimpleFollow.cs       # NPC follow behavior driven by the LLM's decision
+│   │   ├── PlayerMovement.cs     # Third-person character movement (CharacterController)
+│   │   ├── CameraFollow.cs       # Mouse-driven third-person camera
+│   │   └── AudioUtils.cs         # AudioClip → WAV byte conversion
 │   │
-│   ├── Animations/               # Karakter animasyon dosyaları
-│   ├── Scenes/                   # Unity sahne dosyaları
-│   └── RPGPP_LT/                 # Low Poly RPG asset'leri
+│   ├── Animations/               # Character animation files
+│   ├── Scenes/                   # Unity scene files
+│   └── RPGPP_LT/                 # Low-poly RPG assets
 │
 ├── npc_LLM/                      # Python backend
-│   ├── npc_server.py             # FastAPI asenkron API sunucusu
-│   ├── npc_brain.py              # LLM entegrasyonu ve karakter mantığı
-│   ├── voice_utils.py            # STT/TTS ses işleme modülü
-│   └── requirements.txt          # Python bağımlılıkları
+│   ├── npc_server.py             # Asynchronous FastAPI server
+│   ├── npc_brain.py              # LLM integration and character logic
+│   ├── voice_utils.py            # STT/TTS audio processing module
+│   └── requirements.txt          # Python dependencies
 │
 └── README.md
 ```
 
 ---
 
-## 🧠 Teknik Detaylar
+## 🧠 Technical Details
 
-### Unity Tarafı (C#)
+### Unity Side (C#)
 
-#### `CallTheAPI.cs` — API İstemcisi
-- **Singleton Pattern** ile global erişim sağlar
-- `UnityWebRequest` kullanarak Python backend'e HTTP POST istekleri gönderir
-- Metin mesajlarını JSON formatında, ses verilerini **Base64** encode ederek iletir
-- NPC yanıtındaki ses verisini (Base64 MP3) çözerek `AudioSource` üzerinden oynatır
-- `UnityEvent` sistemi ile NPC yanıtını ve ikna durumunu diğer bileşenlere yayınlar
-- **Coroutine** tabanlı asenkron iş akışı yönetimi
+#### `CallTheAPI.cs` — API Client
+- Provides global access via the **Singleton pattern**
+- Sends HTTP POST requests to the Python backend with `UnityWebRequest`
+- Sends text messages as JSON and audio as **Base64**
+- Decodes the audio in the NPC's reply (Base64 MP3) and plays it through an `AudioSource`
+- Broadcasts the NPC's reply and convinced state to other components through `UnityEvent`
+- **Coroutine**-based asynchronous workflow
 
-#### `ChatUI.cs` — Kullanıcı Arayüzü
-- TextMeshPro tabanlı sohbet paneli (ScrollRect ile kaydırılabilir log)
-- **X tuşu** ile açılıp kapanan sohbet penceresi
-- **V tuşu basılı tutma** ile mikrofon kaydı (Push-to-Talk)
-- `Microphone.Start/End` API'si ile ses kaydı alır, `AudioUtils` ile WAV formatına çevirir
-- Chat açıkken oyuncu hareketi ve kamera kontrolü devre dışı kalır
+#### `ChatUI.cs` — User Interface
+- TextMeshPro-based chat panel (scrollable log with ScrollRect)
+- Chat window toggled with the **X key**
+- Microphone recording by **holding V** (push-to-talk)
+- Records audio with `Microphone.Start/End` and converts it to WAV with `AudioUtils`
+- Player movement and camera control are disabled while the chat is open
 
-#### `NPCInteraction.cs` — Etkileşim Tetikleyici
-- `Vector3.Distance` ile oyuncu-NPC mesafe hesaplaması
-- Belirli mesafe içinde etkileşim prompt'u gösterimi
-- Gizmos ile Editor'de etkileşim mesafesinin görselleştirilmesi
+#### `NPCInteraction.cs` — Interaction Trigger
+- Player–NPC distance calculated with `Vector3.Distance`
+- Shows an interaction prompt within a set distance
+- Visualizes the interaction range in the Editor with Gizmos
 
-#### `SimpleFollow.cs` — NPC Takip Sistemi
-- `CallTheAPI.IsConvinced` durumuna göre NPC davranışını belirler
-- `Vector3.MoveTowards` ile hedef takibi, `stoppingDistance` ile durma mesafesi
-- Animator parametreleri ile yürüme/durma animasyon geçişleri
-- `OnNPCConvinced` event'ine abone olarak anlık tepki
+#### `SimpleFollow.cs` — NPC Follow System
+- Sets NPC behavior from `CallTheAPI.IsConvinced`
+- Follows the target with `Vector3.MoveTowards` and stops at `stoppingDistance`
+- Walk/idle animation transitions through Animator parameters
+- Reacts instantly by subscribing to the `OnNPCConvinced` event
 
-#### `PlayerMovement.cs` — Oyuncu Hareketi
-- `CharacterController.SimpleMove` ile kamera yönelimli 3. şahıs hareket
-- `Quaternion.RotateTowards` ile yumuşak karakter dönüşü
-- Sohbet paneli açıkken hareketin tamamen devre dışı bırakılması
+#### `PlayerMovement.cs` — Player Movement
+- Camera-relative third-person movement with `CharacterController.SimpleMove`
+- Smooth character rotation with `Quaternion.RotateTowards`
+- Movement fully disabled while the chat panel is open
 
-#### `CameraFollow.cs` — Kamera Kontrolü
-- Mouse girişi ile orbital kamera hareketi
-- Pitch sınırlama (clamp) ile doğal görüş açısı kontrolü
+#### `CameraFollow.cs` — Camera Control
+- Orbital camera movement with mouse input
+- Pitch clamping for a natural viewing angle
 
 ---
 
 ### Python Backend
 
-#### `npc_server.py` — FastAPI Sunucusu
-- **Asenkron** HTTP API sunucusu (FastAPI + Uvicorn)
-- **Endpoint'ler:**
-  - `POST /chat` — Metin veya ses girişi alır, LLM yanıtı ve opsiyonel TTS sesi döndürür
-  - `POST /chat/voice` — Sesli yanıt endpoint'i (MP3 stream)
-  - `POST /tts` — Bağımsız metin-ses dönüşümü
-  - `POST /stt` — Bağımsız ses-metin dönüşümü (dosya yükleme)
-  - `GET /voice/status` — Ses servisi durum kontrolü
-- **Oturum yönetimi:** `player_id` bazlı chat session'ları (çoklu oyuncu desteği altyapısı)
-- Base64 ile gelen ses verisinin STT'ye yönlendirilmesi ve metin olarak LLM'e aktarılması
-- Hata yönetimi: Rate limit (429), Authentication (401/403), Safety filter ve genel hatalar
+#### `npc_server.py` — FastAPI Server
+- **Asynchronous** HTTP API server (FastAPI + Uvicorn)
+- **Endpoints:**
+  - `POST /chat` — Takes text or audio input, returns the LLM reply and optional TTS audio
+  - `POST /chat/voice` — Voice reply endpoint (MP3 stream)
+  - `POST /tts` — Standalone text-to-speech
+  - `POST /stt` — Standalone speech-to-text (file upload)
+  - `GET /voice/status` — Voice service health check
+- **Session management:** chat sessions per `player_id` (groundwork for multiplayer)
+- Routes Base64 audio to STT and passes the transcribed text to the LLM
+- Error handling: rate limit (429), authentication (401/403), safety filter and general errors
 
-#### `npc_brain.py` — NPC Yapay Zeka Beyni
-- **Google Gemini 2.5 Flash** modeli ile yapılandırılmış sohbet oturumu
-- **Prompt Engineering:**
-  - Karakter kişiliği tanımı (huysuz cüce demirci, altın tutkusu, eski Türkçe üslup)
-  - Hidden Judge kuralları (ikna koşulları, reddedilme senaryoları)
-  - JSON formatında yapılandırılmış yanıt şeması (`response` + `isConvinced`)
-- **Rule-Based Response:** Anahtar kelime tespiti ile hızlı tepki sistemi (Türkçe ek uyumlu regex)
-- **Fallback Wait Messages:** API yanıt gecikmeleri için progresif bekleme mesajları
-- Multithreaded API çağrısı (ana thread'i bloklamadan arka planda çalışma)
+#### `npc_brain.py` — NPC AI Brain
+- Structured chat session with the **Google Gemini 2.5 Flash** model
+- **Prompt engineering:**
+  - Character personality (a grumpy dwarf blacksmith who loves gold and speaks in an old-fashioned Turkish style)
+  - Hidden Judge rules (conditions for being convinced, refusal scenarios)
+  - Structured JSON response schema (`response` + `isConvinced`)
+- **Rule-based responses:** fast reactions via keyword detection (regex that handles Turkish suffixes)
+- **Fallback wait messages:** progressive waiting messages when the API is slow
+- Multithreaded API calls (run in the background without blocking the main thread)
 
-#### `voice_utils.py` — Ses İşleme Modülü
+#### `voice_utils.py` — Audio Processing Module
 - **Text-to-Speech (TTS):**
-  - ElevenLabs SDK v2.x entegrasyonu (geriye uyumlu fallback'ler)
-  - `eleven_multilingual_v2` modeli ile Türkçe ses sentezi
-  - Birden fazla SDK sürümüne uyumlu adaptif API çağrıları
-  - REST API fallback mekanizması
+  - ElevenLabs SDK v2.x integration (with backward-compatible fallbacks)
+  - Turkish speech synthesis with the `eleven_multilingual_v2` model
+  - Adaptive API calls compatible with multiple SDK versions
+  - REST API fallback mechanism
 - **Speech-to-Text (STT):**
-  - Google Speech Recognition API (Türkçe dil desteği)
-  - `correct_speech_text()` fonksiyonu ile yaygın tanıma hatalarının otomatik düzeltilmesi
-  - WAV formatından ve mikrofon girişinden ses tanıma
-- **Push-to-Talk:** Klavye (Space tuşu) basılı tutma ile ses kaydı
+  - Google Speech Recognition API (Turkish)
+  - Automatic correction of common recognition errors with `correct_speech_text()`
+  - Speech recognition from WAV files and microphone input
+- **Push-to-talk:** record by holding a keyboard key (Space)
 
 ---
 
-### Hidden Judge (Gizli Hakem) Sistemi
+### Hidden Judge System
 
-Oyuncunun NPC'yi ikna etme sürecini değerlendiren yapay zeka mekanizmasıdır:
+The AI mechanism that evaluates the player's attempt to convince the NPC:
 
 ```
-Oyuncu Mesajı → Gemini LLM → JSON { response, isConvinced }
+Player Message → Gemini LLM → JSON { response, isConvinced }
                     │
                     ▼
             ┌──────────────┐
-            │ Değerlendirme│
-            │   Kriterleri │
+            │  Evaluation  │
+            │   Criteria   │
             └──────┬───────┘
                    │
-         ┌─────────┼──────────┐
-         ▼         ▼          ▼
-    ✅ İkna Ol  ❌ Reddet   ⏳ Bekle
-    - Baba       - Tehdit     - İlk deneme
-      konusu     - Zorlama    - Yetersiz
-    - Altın      - Tutarsız     argüman
-      teklifi      argüman
-    - Geçerli
-      kanıt
+         ┌─────────┼───────────┐
+         ▼         ▼           ▼
+   ✅ Convinced  ❌ Refuse   ⏳ Wait
+    - Father      - Threats    - First attempt
+      topic       - Coercion   - Weak
+    - Gold        - Incoherent   argument
+      offer         argument
+    - Valid
+      evidence
 ```
 
-- Oyuncu babadan bahsedip samimi yaklaşırsa → ikna olur
-- Altın teklif edilirse veya makul ödeme taahhüdü varsa → ikna olur
-- Tehdit veya zorlama varsa → kesinlikle ikna olmaz
-- İlk ikna girişiminde → ikna olmaz (en az 2 tur gereklidir)
+- If the player brings up the father topic and approaches sincerely → convinced
+- If gold is offered or a reasonable payment is promised → convinced
+- If there are threats or coercion → never convinced
+- On the first attempt → not convinced (at least 2 rounds are required)
 
 ---
 
-## 🎮 Oynanış ve Kontroller
+## 🎮 Gameplay and Controls
 
-| Tuş | İşlev |
+| Key | Action |
 |---|---|
-| `W / A / S / D` | Karakter hareketi |
-| `Mouse` | Kamera kontrolü |
-| `X` | Sohbet panelini aç/kapat |
-| `V` (Basılı Tut) | Sesli konuşma (Push-to-Talk) |
-| `ESC` | Sohbet panelini kapat |
+| `W / A / S / D` | Move the character |
+| `Mouse` | Control the camera |
+| `X` | Open/close the chat panel |
+| `V` (hold) | Voice chat (push-to-talk) |
+| `ESC` | Close the chat panel |
 
-### Oyun Akışı
-1. Oyuncu, 3D dünyada serbestçe hareket eder
-2. Grom'a yaklaştığında etkileşim prompt'u belirir
-3. `X` tuşu ile sohbet panelini açar veya `V` ile sesli konuşur
-4. Grom, oyuncunun söylediklerini değerlendirir ve karakter olarak yanıt verir
-5. Oyuncu yeterince ikna edici olursa Grom takip etmeye başlar
+### Game Flow
+1. The player moves freely in the 3D world
+2. An interaction prompt appears when approaching Grom
+3. The player opens the chat panel with `X` or speaks with `V`
+4. Grom evaluates what the player said and replies in character
+5. If the player is convincing enough, Grom starts following them
 
 ---
 
-## 🛠️ Kurulum ve Çalıştırma
+## 🛠️ Installation and Usage
 
-### Gereksinimler
+### Requirements
 - **Unity 6** (URP — Universal Render Pipeline)
 - **Python 3.8+**
-- **Gemini API Key** ([Google AI Studio](https://aistudio.google.com/app/apikey))
-- **ElevenLabs API Key** (Opsiyonel — TTS için) ([ElevenLabs](https://elevenlabs.io/))
+- **Gemini API key** ([Google AI Studio](https://aistudio.google.com/app/apikey))
+- **ElevenLabs API key** (optional, for TTS) ([ElevenLabs](https://elevenlabs.io/))
 
-### 1. Python Backend Kurulumu
+### 1. Set Up the Python Backend
 
 ```bash
 cd npc_LLM
 pip install google-generativeai fastapi uvicorn pydantic elevenlabs SpeechRecognition pyaudio keyboard
 ```
 
-### 2. API Anahtarlarının Tanımlanması
+### 2. Set the API Keys
 
 **Windows (PowerShell):**
 ```powershell
-$env:GEMINI_API_KEY="sizin_gemini_api_anahtariniz"
-$env:ELEVENLABS_API_KEY="sizin_elevenlabs_api_anahtariniz"   # Opsiyonel
+$env:GEMINI_API_KEY="your_gemini_api_key"
+$env:ELEVENLABS_API_KEY="your_elevenlabs_api_key"   # Optional
 ```
 
 **macOS / Linux:**
 ```bash
-export GEMINI_API_KEY="sizin_gemini_api_anahtariniz"
-export ELEVENLABS_API_KEY="sizin_elevenlabs_api_anahtariniz"   # Opsiyonel
+export GEMINI_API_KEY="your_gemini_api_key"
+export ELEVENLABS_API_KEY="your_elevenlabs_api_key"   # Optional
 ```
 
-### 3. Sunucuyu Başlatma
+### 3. Start the Server
 
 ```bash
 cd npc_LLM
 uvicorn npc_server:app --reload
 ```
 
-Sunucu başarıyla başladığında `http://127.0.0.1:8000` adresinde çalışır.
+Once started, the server runs at `http://127.0.0.1:8000`.
 
-### 4. Unity Projesini Açma
+### 4. Open the Unity Project
 
-Unity Hub üzerinden projeyi açın ve sahneyi çalıştırın.
+Open the project in Unity Hub and run the scene.
 
 ---
 
-## 🔧 Kullanılan Teknolojiler
+## 🔧 Technologies Used
 
-| Kategori | Teknoloji |
+| Category | Technology |
 |---|---|
-| **Oyun Motoru** | Unity 6 (URP) |
-| **Programlama Dilleri** | C# (Unity), Python (Backend) |
+| **Game Engine** | Unity 6 (URP) |
+| **Languages** | C# (Unity), Python (backend) |
 | **LLM** | Google Gemini 2.5 Flash |
 | **API Framework** | FastAPI + Uvicorn |
-| **Ses Sentezi (TTS)** | ElevenLabs (eleven_multilingual_v2) |
-| **Ses Tanıma (STT)** | Google Speech Recognition |
-| **Veri İletişimi** | REST API, JSON, Base64 |
+| **Text-to-Speech** | ElevenLabs (eleven_multilingual_v2) |
+| **Speech Recognition** | Google Speech Recognition |
+| **Data Exchange** | REST API, JSON, Base64 |
 | **UI Framework** | TextMeshPro, Unity UI |
-| **3D Modeller** | Low Poly Modular Character Pack |
+| **3D Models** | Low Poly Modular Character Pack |
 | **Render Pipeline** | Universal Render Pipeline (URP) |
 
 ---
 
-## 📈 Gelecek Geliştirmeler
+## 📈 Future Improvements
 
-- [ ] Çoklu NPC desteği (farklı kişiliklerde AI karakterler)
-- [ ] Karakter hafızası sistemi (uzun süreli konuşma bağlamı)
-- [ ] Duygu analizi ve yüz ifadesi entegrasyonu
-- [ ] Görev tabanlı diyalog sistemi (quest chain)
-- [ ] Yerel LLM desteği (Ollama entegrasyonu)
-- [ ] Daha gelişmiş NPC davranış ağaçları (Behavior Tree)
-- [ ] WebSocket ile gerçek zamanlı streaming yanıtlar
+- [ ] Multiple NPCs (AI characters with different personalities)
+- [ ] Character memory (long-term conversation context)
+- [ ] Sentiment analysis and facial expression integration
+- [ ] Quest-based dialogue system (quest chains)
+- [ ] Local LLM support (Ollama integration)
+- [ ] More advanced NPC behavior trees
+- [ ] Real-time streaming replies over WebSocket
 
 ---
 
-## 📄 Lisans
+## 📄 License
 
-Bu proje eğitim, araştırma ve prototipleme amaçlı geliştirilmiştir.
+This project was developed for educational, research and prototyping purposes.
 
-## Oynanış Videosu
+## Gameplay Video
 
-[![Videoyu İzlemek İçin Tıklayın](https://img.youtube.com/vi/wW9WMaQVq_k/0.jpg)](https://www.youtube.com/watch?v=wW9WMaQVq_k)
-
+[![Click to watch the video](https://img.youtube.com/vi/wW9WMaQVq_k/0.jpg)](https://www.youtube.com/watch?v=wW9WMaQVq_k)
